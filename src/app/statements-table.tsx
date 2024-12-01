@@ -22,9 +22,9 @@ import { Download } from 'lucide-react'
 export default function StatementsTable({
     statements,
 }: {
-    statements: (Statement & { category: string })[]
+    statements: Statement[]
 }) {
-    const columns: ColumnDef<Statement & { category: string }>[] = [
+    const columns: ColumnDef<Statement>[] = [
         {
             header: 'Data',
             accessorKey: 'date',
@@ -47,10 +47,6 @@ export default function StatementsTable({
                     {row.original.amount}
                 </p>
             ),
-        },
-        {
-            header: 'Categoria',
-            accessorKey: 'category',
         },
     ]
 
@@ -133,7 +129,7 @@ export default function StatementsTable({
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    Sem resultados.
+                                    As informações do extrato aparecerão aqui.
                                 </TableCell>
                             </TableRow>
                         )}

@@ -6,5 +6,4 @@ export type Statement = {
     balance_amount: number
     fit_id: string
     transaction_id?: string
-    category: string
 }
