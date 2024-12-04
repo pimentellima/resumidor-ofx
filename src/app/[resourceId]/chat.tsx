@@ -4,6 +4,8 @@ import { ChatRequestOptions } from 'ai'
 import { useChat } from 'ai/react'
 import { ArrowUpIcon, BotIcon } from 'lucide-react'
 import { RefObject, useEffect, useRef } from 'react'
+import Markdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import BarChartMultiple from './bar-chart-multiple'
 
 export default function Chat() {
@@ -24,7 +26,7 @@ export default function Chat() {
         <div className="pb-4 pt-8 flex flex-col justify-between items-center h-full">
             <div
                 className="overflow-auto w-screen pb-6 flex flex-col gap-10
-            text-[0.95rem] leading-[1.7rem] items-center"
+               leading-relaxed items-center"
             >
                 {messages.map((message) => (
                     <div
@@ -35,12 +37,14 @@ export default function Chat() {
                         {message.role === 'user' ? (
                             <UserMessage content={message.content} />
                         ) : (
-                            <div className="flex items-center gap-2 w-full relative">
+                            <div className="flex gap-2 w-full relative">
                                 <div className="absolute -left-14 w-9 h-9 rounded-md border flex justify-center items-center">
                                     <BotIcon className="h-5" />
                                 </div>
                                 <div className="flex-1">
-                                    {message.content}
+                                    <Markdown remarkPlugins={[remarkGfm]}>
+                                        {message.content}
+                                    </Markdown>
                                     <div>
                                         {message.toolInvocations?.map(
                                             (toolInvocation) => {
@@ -119,23 +123,6 @@ function InputBubble({
     ) => void
     scrollRef: RefObject<HTMLDivElement>
 }) {
-    /*     useEffect(() => {
-        document.querySelectorAll('textarea').forEach(function (textarea) {
-            textarea.style.height = textarea.scrollHeight + 'px'
-            textarea.style.overflowY = 'hidden'
-
-            textarea.addEventListener('input', function () {
-                if (this.scrollHeight >= 190) {
-                    console.log(this.scrollHeight, this.style.overflowY)
-                    this.style.overflowY = 'auto'
-                } else {
-                    this.style.height = 'auto'
-                    this.style.height = this.scrollHeight + 'px'
-                }
-            })
-        })
-    }, [])
- */
     return (
         <form
             className="flex justify-end items-end flex-col shadow-2xl bg-accent rounded-md p-4 pr-3"
