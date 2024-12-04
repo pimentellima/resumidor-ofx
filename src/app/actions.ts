@@ -1,6 +1,7 @@
 'use server'
 import { getBusinessInfoByCnpj } from '@/lib/get-business-info-by-cnpj'
 import { getCnpjFromText } from '@/lib/get-cnpj-from-text'
+import s3 from '@/lib/s3'
 import { Statement } from '@/lib/types'
 import { openai } from '@ai-sdk/openai'
 import { generateObject } from 'ai'
@@ -56,4 +57,19 @@ export async function getCategories(statements: Omit<Statement, 'category'>[]) {
     } catch (e) {
         return { error: 'Error' }
     }
+}
+
+export async function uploadPdfToS3(formData: FormData) {
+    const file = formData.get('file')
+    if (!(file instanceof File)) return 'Invalid file'
+    if (file.type !== 'application/pdf') return 'File must be a pdf'
+    const pdfBuffer = Buffer.from(await file.arrayBuffer())
+    const key = crypto.randomUUID()
+    await s3.putObject({
+        Bucket: process.env.S3_BUCKET_NAME,
+        Key: key,
+        Body: pdfBuffer,
+        ContentType: 'application/pdf',
+    })
+    // redirect('' + key)
 }
