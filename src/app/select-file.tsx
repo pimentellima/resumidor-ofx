@@ -3,13 +3,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/components/ui/use-toast'
-import { generatePdfPages } from '@/lib/pdf'
 import { LoaderIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { ChangeEvent, useState } from 'react'
 
 export function SelectFile() {
-    const [file, setFile] = useState<File | null>(null)
+    const [files, setFiles] = useState<FileList | null>(null)
     const router = useRouter()
     const [loading, setLoading] = useState(false)
     const { toast } = useToast()
@@ -18,61 +17,76 @@ export function SelectFile() {
         if (!e.target.files || e.target.files.length === 0) {
             return
         }
-        setFile(e.target.files[0])
+        setFiles(e.target.files)
     }
 
-    const handleImportFile = async () => {
-        if (!file) return
+    const handleImportFiles = async () => {
+        if (!files) return
         setLoading(true)
-        const reader = new FileReader()
-        reader.readAsArrayBuffer(file)
 
-        reader.onload = async () => {
-            const arrayBuffer = reader.result
+        try {
+            await Promise.all(
+                Array.from(files).map(async (file) => {
+                    return new Promise(async (resolve, reject) => {
+                        const csv = await new Promise<string>(
+                            (resolve, reject) => {
+                                const reader = new FileReader()
+                                reader.onload = () => {
+                                    const decoder = new TextDecoder()
+                                    const csv = decoder.decode(
+                                        reader.result as ArrayBuffer
+                                    )
+                                    resolve(csv)
+                                }
 
-            try {
-                const pages = await generatePdfPages(arrayBuffer as ArrayBuffer)
-                const response = await fetch('/api/generate-embeddings', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ pages }),
-                })
+                                reader.onerror = (error) => reject(error)
+                                reader.readAsArrayBuffer(file)
+                            }
+                        )
 
-                if (!response.ok) {
-                    toast({
-                        title: 'Error',
-                        variant: 'destructive',
+                        const response = await fetch(
+                            '/api/generate-embeddings',
+                            {
+                                method: 'POST',
+                                body: JSON.stringify({ csv }),
+                            }
+                        )
+
+                        if (!response.ok) {
+                            return reject(response.status)
+                        }
+                        resolve(response.status)
                     })
-                }
-                router.push(response.url)
-            } catch (error) {
-                toast({
-                    title: 'Error',
-                    variant: 'destructive',
                 })
-            } finally {
-                setLoading(false)
-            }
+            )
+
+            router.push('/chat')
+        } catch (error) {
+            toast({
+                title: 'Error',
+                variant: 'destructive',
+            })
+        } finally {
+            setLoading(false)
         }
     }
     return (
         <div className="flex flex-col mb-2">
             <Label htmlFor="file" className="mt-2 font-semibold mb-2 pl-4">
-                Selecione o arquivo .pdf ou .ofx do extrato bancário para
-                importar
+                Selecione o arquivo .csv do extrato bancário para importar
             </Label>
             <div className="flex gap-1">
                 <Input
                     id="file"
                     type="file"
                     disabled={loading}
+                    accept=".csv"
+                    multiple={true}
                     onChange={handleChangeFile}
                 />
                 <Button
-                    disabled={!file || loading}
-                    onClick={handleImportFile}
+                    disabled={!files || loading}
+                    onClick={handleImportFiles}
                     variant={'outline'}
                 >
                     {loading ? (

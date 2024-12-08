@@ -1,30 +1,13 @@
-import { generateEmbeddings } from '@/lib/ai/embedding'
-import { db } from '@/lib/db'
-import { embeddings as embeddingsTable, resources } from '@/lib/db/schema'
-import { NextResponse } from 'next/server'
+import { db } from '@/lib/db/index'
+import { statements } from '@/lib/db/schema'
+import { generateStatementsFromCsv } from '@/lib/generate-statements-from-csv'
 
 export async function POST(request: Request) {
-    const json = await request.json()
-    if (!json.pages) {
-        return new Response('Error, please try again.', { status: 400 })
-    }
-    const pdfPages: string[] = json.pages
-
     try {
-        const [resource] = await db
-            .insert(resources)
-            .values({ content: pdfPages.join('\n') })
-            .returning()
-        const embeddings = await generateEmbeddings(pdfPages)
-        await db.insert(embeddingsTable).values(
-            embeddings.map((embedding) => ({
-                resourceId: resource.id,
-                ...embedding,
-            }))
-        )
-        return NextResponse.redirect(
-            `${process.env.NEXT_PUBLIC_BASE_URL}/${resource.id}`
-        )
+        const { csv } = await request.json()
+        const rows = generateStatementsFromCsv(csv)
+        await db.insert(statements).values(rows)
+        return new Response('Success', { status: 200 })
     } catch (e) {
         console.log(e)
         const message =

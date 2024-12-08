@@ -1,5 +1,13 @@
 import { generateId } from 'ai'
-import { index, pgTable, text, varchar, vector } from 'drizzle-orm/pg-core'
+import {
+    date,
+    index,
+    numeric,
+    pgTable,
+    text,
+    varchar,
+    vector,
+} from 'drizzle-orm/pg-core'
 
 export const resources = pgTable('resources', {
     id: varchar('id', { length: 191 })
@@ -28,3 +36,12 @@ export const embeddings = pgTable(
         ),
     })
 )
+
+export const statements = pgTable('statements', {
+    id: varchar('id', { length: 191 })
+        .primaryKey()
+        .$defaultFn(() => generateId()),
+    date: date('date'),
+    description: text('description'),
+    amount: numeric('amount'),
+})
