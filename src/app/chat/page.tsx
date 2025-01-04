@@ -10,7 +10,16 @@ export default async function ResourcePage() {
 
     return (
         <div className="h-screen bg-background flex items-center">
+            <Drawer />
             <Chat />
+        </div>
+    )
+}
+
+function Drawer() {
+    return (
+        <div className="bg-card w-72 h-full">
+            <div className="w-full"></div>
         </div>
     )
 }

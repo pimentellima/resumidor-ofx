@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { ChatRequestOptions, Message } from 'ai'
 import { useChat } from 'ai/react'
-import { ArrowUpIcon, BotIcon } from 'lucide-react'
+import { ArrowUpIcon } from 'lucide-react'
 import { RefObject, useEffect, useRef } from 'react'
 import BarChartMultiple from '../../components/bar-chart-multiple'
 import { PieChartComponent } from '../../components/pie-chart'
@@ -24,10 +24,10 @@ export default function Chat() {
     }, [messages])
 
     return (
-        <div className="pb-4 pt-8 flex flex-col justify-between items-center h-full">
+        <div className="flex-1 pb-4 pt-8 flex flex-col justify-between items-center h-full">
             <div
-                className="overflow-auto w-screen pb-6 flex flex-col gap-10
-               leading-relaxed items-center"
+                className="overflow-auto pb-6 flex flex-col gap-10
+               leading-relaxed items-center w-[750px] relative"
             >
                 {messages.map((message) =>
                     message.role === 'user' ? (
@@ -78,20 +78,14 @@ function BotMessage({
     )
     if (isLastMessage && !message.content && isCallingTool)
         return (
-            <div className="flex gap-2 relative w-[750px] px-2">
-                <div className="absolute -left-14 w-9 h-9 rounded-md border flex justify-center items-center">
-                    <BotIcon className="h-5" />
-                </div>
+            <div className="flex gap-2 w-full px-2">
                 <div className="flex-1">Buscando informações...</div>
             </div>
         )
 
     if (!message.content && !hasChart) return null
     return (
-        <div className="flex gap-2 relative w-[750px] px-2">
-            <div className="absolute -left-14 w-9 h-9 rounded-md border flex justify-center items-center">
-                <BotIcon className="h-5" />
-            </div>
+        <div className="flex gap-2 w-full px-2">
             <div className="flex-1">
                 {message.content}
                 <div>
@@ -184,7 +178,7 @@ function InputBubble({
 
 function UserMessage({ content }: { content: string }) {
     return (
-        <div className="flex justify-end  w-[750px] px-2 items-center">
+        <div className="flex justify-end w-full px-2 items-center">
             <div className="text-right py-2 px-4 rounded-md bg-accent">
                 {content}
             </div>
