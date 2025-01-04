@@ -25,40 +25,32 @@ export function SelectFile() {
         setLoading(true)
 
         try {
-            await Promise.all(
+            const csvFiles = await Promise.all(
                 Array.from(files).map(async (file) => {
-                    return new Promise(async (resolve, reject) => {
-                        const csv = await new Promise<string>(
-                            (resolve, reject) => {
-                                const reader = new FileReader()
-                                reader.onload = () => {
-                                    const decoder = new TextDecoder()
-                                    const csv = decoder.decode(
-                                        reader.result as ArrayBuffer
-                                    )
-                                    resolve(csv)
-                                }
-
-                                reader.onerror = (error) => reject(error)
-                                reader.readAsArrayBuffer(file)
-                            }
-                        )
-
-                        const response = await fetch(
-                            '/api/generate-embeddings',
-                            {
-                                method: 'POST',
-                                body: JSON.stringify({ csv }),
-                            }
-                        )
-
-                        if (!response.ok) {
-                            return reject(response.status)
+                    return new Promise<string>((resolve, reject) => {
+                        const reader = new FileReader()
+                        reader.onload = () => {
+                            const decoder = new TextDecoder()
+                            const csv = decoder.decode(
+                                reader.result as ArrayBuffer
+                            )
+                            resolve(csv)
                         }
-                        resolve(response.status)
+
+                        reader.onerror = (error) => reject(error)
+                        reader.readAsArrayBuffer(file)
                     })
                 })
             )
+
+            const response = await fetch('/api/generate-embeddings', {
+                method: 'POST',
+                body: JSON.stringify({ csvFiles }),
+            })
+
+            if (!response.ok) {
+                throw new Error(response.statusText)
+            }
 
             router.push('/chat')
         } catch (error) {

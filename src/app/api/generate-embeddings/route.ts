@@ -1,12 +1,19 @@
 import { db } from '@/lib/db/index'
-import { statements } from '@/lib/db/schema'
+import { bankImports, statements } from '@/lib/db/schema'
 import { generateStatementsFromCsv } from '@/lib/generate-statements-from-csv'
 
 export async function POST(request: Request) {
     try {
-        const { csv } = await request.json()
+        const { csvFiles } = (await request.json()) as { csvFiles: string[] }
+
+        csvFiles.map(async (file) => {
+            await db.transaction(async (tx) => {
+                const rows = generateStatementsFromCsv(file)
+                await db.insert(statements).values(rows)
+            })
+        })
+        const bankImport = await db.insert(bankImports).values({})
         const rows = generateStatementsFromCsv(csv)
-        await db.insert(statements).values(rows)
         return new Response('Success', { status: 200 })
     } catch (e) {
         console.log(e)

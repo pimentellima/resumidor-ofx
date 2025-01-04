@@ -4,8 +4,8 @@ import { ChatRequestOptions, Message } from 'ai'
 import { useChat } from 'ai/react'
 import { ArrowUpIcon, BotIcon } from 'lucide-react'
 import { RefObject, useEffect, useRef } from 'react'
-import BarChartMultiple from './bar-chart-multiple'
-import { PieChartComponent } from './pie-chart'
+import BarChartMultiple from '../../components/bar-chart-multiple'
+import { PieChartComponent } from '../../components/pie-chart'
 
 export default function Chat() {
     const { messages, handleSubmit, handleInputChange, input } = useChat({
@@ -22,7 +22,7 @@ export default function Chat() {
     useEffect(() => {
         scrollToBottom()
     }, [messages])
-    console.log(messages)
+
     return (
         <div className="pb-4 pt-8 flex flex-col justify-between items-center h-full">
             <div
