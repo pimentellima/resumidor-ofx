@@ -16,12 +16,14 @@ import { format } from 'date-fns'
 import { InferSelectModel } from 'drizzle-orm'
 import { FileIcon, LoaderIcon, ScanEyeIcon, TrashIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, ReactNode, useState } from 'react'
 
 export function ImportStatementsDialog({
     imports,
+    children,
 }: {
     imports: InferSelectModel<typeof bankImports>[]
+    children: ReactNode
 }) {
     const [open, setOpen] = useState(false)
     const [files, setFiles] = useState<FileList | null>(null)
@@ -80,16 +82,7 @@ export function ImportStatementsDialog({
     }
     return (
         <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-                <Button
-                    variant={'outline'}
-                    size={'lg'}
-                    className="hover:bg-background w-full"
-                >
-                    <FileIcon className="h-5 w-5" />
-                    Importar extratos ({imports.length})
-                </Button>
-            </DialogTrigger>
+            <DialogTrigger asChild>{children}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Importar extratos</DialogTitle>

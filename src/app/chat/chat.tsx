@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { ChatRequestOptions, Message } from 'ai'
 import { useChat } from 'ai/react'
 import { ArrowUpIcon } from 'lucide-react'
-import { RefObject, useEffect, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import BarChartMultiple from '../../components/bar-chart-multiple'
 import { PieChartComponent } from '../../components/pie-chart'
 
@@ -24,7 +24,7 @@ export default function Chat() {
     }, [messages])
 
     return (
-        <div className="flex-1 pb-4 pt-8 flex flex-col justify-between items-center h-full">
+        <div className="w-full pb-4 pt-8 flex flex-col justify-between items-center h-full border rounded-md bg-black">
             <div
                 className="overflow-auto pb-6 flex flex-col gap-10
                leading-relaxed items-center w-[750px] relative"
@@ -52,7 +52,6 @@ export default function Chat() {
             </div>
             <div className="w-[750px]">
                 <InputBubble
-                    scrollRef={messageEndRef}
                     scrollToBottom={scrollToBottom}
                     handleSubmit={handleSubmit}
                     handleInputChange={handleInputChange}
@@ -124,7 +123,6 @@ function InputBubble({
     scrollToBottom,
     input,
     handleInputChange,
-    scrollRef,
 }: {
     handleSubmit: (
         event?: {
@@ -139,12 +137,11 @@ function InputBubble({
             | React.ChangeEvent<HTMLInputElement>
             | React.ChangeEvent<HTMLTextAreaElement>
     ) => void
-    scrollRef: RefObject<HTMLDivElement>
 }) {
     return (
         <form
             className="flex justify-end items-end flex-col shadow-2xl 
-            bg-accent text-accent-foreground rounded-md p-4 pr-3"
+            bg-background text-foreground rounded-md p-4 pr-3 border"
             onSubmit={handleSubmit}
         >
             <textarea
@@ -179,7 +176,7 @@ function InputBubble({
 function UserMessage({ content }: { content: string }) {
     return (
         <div className="flex justify-end w-full px-2 items-center">
-            <div className="text-right py-2 px-4 rounded-md bg-accent">
+            <div className="text-right py-2 px-4 rounded-md bg-background border">
                 {content}
             </div>
         </div>
