@@ -1,6 +1,11 @@
 import { auth } from '@/lib/auth'
+import { db } from '@/lib/db'
+import { bankImports } from '@/lib/db/schema'
+import { eq } from 'drizzle-orm'
 import { redirect } from 'next/navigation'
 import Chat from './chat'
+import { ImportStatementsDialog } from './components/import-statements-dialog'
+import UserDialog from './components/user-dialog'
 
 export default async function ResourcePage() {
     const session = await auth()
@@ -8,18 +13,17 @@ export default async function ResourcePage() {
         return redirect('/sign-in')
     }
 
-    return (
-        <div className="h-screen bg-background flex items-center">
-            <Drawer />
-            <Chat />
-        </div>
-    )
-}
+    const imports = await db.query.bankImports.findMany({
+        where: eq(bankImports.userId, session.user.id),
+    })
 
-function Drawer() {
     return (
-        <div className="bg-card w-72 h-full">
-            <div className="w-full"></div>
+        <div className="h-screen bg-background items-center">
+            <div className="fixed top-2 right-2 flex gap-2">
+                <ImportStatementsDialog imports={imports} />
+                <UserDialog />
+            </div>
+            <Chat />
         </div>
     )
 }
