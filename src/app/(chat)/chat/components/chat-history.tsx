@@ -7,12 +7,7 @@ import { useParams } from 'next/navigation'
 export default function ChatHistory({ history }: { history: Chat[] }) {
     const params = useParams()
 
-    if (history.length === 0)
-        return (
-            <p className="text-center text-sm text-muted-foreground">
-                Nenhum chat
-            </p>
-        )
+    if (history.length === 0) return null
 
     return (
         <div className="contents">
