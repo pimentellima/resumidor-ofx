@@ -5,7 +5,6 @@ import { Separator } from '@/components/ui/separator'
 import { BankImport, Chat } from '@/lib/db/schema'
 import {
     ArrowLeftFromLineIcon,
-    ArrowRightFromLineIcon,
     FileIcon,
     HistoryIcon,
     LogOutIcon,
@@ -67,11 +66,10 @@ export default function Drawer({
                     className="w-full overflow-hidden"
                     onClick={() => setOpen(!open)}
                 >
-                    {open ? (
-                        <ArrowLeftFromLineIcon />
-                    ) : (
-                        <ArrowRightFromLineIcon />
-                    )}
+                    <ArrowLeftFromLineIcon
+                        data-open={open}
+                        className="data-[open=true]:rotate-0 rotate-180 transition-transform"
+                    />
                     {open && 'Fechar'}
                 </Button>
                 <ImportStatementsDialog imports={imports}>
