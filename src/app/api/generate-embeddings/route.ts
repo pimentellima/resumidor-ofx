@@ -20,11 +20,13 @@ export async function POST(request: Request) {
                     .values({ userId: session.user.id })
                     .returning()
 
-                await db.insert(statements).values({
-                    ...rows,
-                    userId: session.user.id,
-                    bankImportId: newBankImport.id,
-                })
+                await db.insert(statements).values(
+                    rows.map((row) => ({
+                        ...row,
+                        bankImportId: newBankImport.id,
+                        userId: session.user.id,
+                    }))
+                )
             })
         })
         return new Response('Success', { status: 200 })

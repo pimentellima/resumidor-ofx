@@ -1,9 +1,17 @@
 import { tools } from '@/lib/ai/tools'
+import { auth } from '@/lib/auth'
+import { saveChat } from '@/lib/db/queries/save-chat'
 import { openai } from '@ai-sdk/openai'
-import { streamText } from 'ai'
+import { convertToCoreMessages, streamText } from 'ai'
 
 export async function POST(request: Request) {
-    const { messages } = await request.json()
+    const { messages, id } = await request.json()
+    const session = await auth()
+    if (!session?.user.id) {
+        return new Response('Unauthorized', { status: 401 })
+    }
+
+    const coreMessages = convertToCoreMessages(messages)
 
     const result = streamText({
         model: openai('gpt-4o'),
@@ -38,7 +46,18 @@ export async function POST(request: Request) {
         Quando você gerar um chart, não precisa listar as informações novamente, só diga que gerou o chart de maneira curta.`,
         messages,
         maxSteps: 10,
-        onFinish: ({ usage, finishReason }) => console.log(usage, finishReason),
+        onFinish: async ({ response }) => {
+            try {
+                await saveChat({
+                    id: id,
+                    messages: [...coreMessages, ...response.messages],
+                    userId: session.user.id,
+                })
+            } catch (error) {
+                console.log(error)
+                console.error('Failed to save chat')
+            }
+        },
     })
 
     return result.toDataStreamResponse()

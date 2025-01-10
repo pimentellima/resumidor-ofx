@@ -5,9 +5,9 @@ import { ArrowRight } from 'lucide-react'
 import { signIn } from 'next-auth/react'
 import { useSearchParams } from 'next/navigation'
 import { FormEvent, useState } from 'react'
-import { Input } from './ui/input'
+import { Input } from '../../../components/ui/input'
 
-export default function SignInOptions() {
+export default function SignIn() {
     const searchParams = useSearchParams()
     const [email, setEmail] = useState('')
     const error = searchParams.get('error')

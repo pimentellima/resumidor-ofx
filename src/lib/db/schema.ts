@@ -1,15 +1,17 @@
-import { generateId } from 'ai'
-import { sql } from 'drizzle-orm'
+import { generateId, Message } from 'ai'
+import { InferSelectModel, sql } from 'drizzle-orm'
 import {
     boolean,
     date,
     index,
     integer,
+    json,
     numeric,
     pgTable,
     primaryKey,
     text,
     timestamp,
+    uuid,
     varchar,
     vector,
 } from 'drizzle-orm/pg-core'
@@ -69,6 +71,8 @@ export const bankImports = pgTable('bank_imports', {
         .references(() => users.id, { onDelete: 'cascade' }),
     createdAt: timestamp('created_at').defaultNow().notNull(),
 })
+
+export type BankImport = InferSelectModel<typeof bankImports>
 
 export const users = pgTable('users', {
     id: text('id')
@@ -153,3 +157,17 @@ export const refreshTokens = pgTable('refresh_tokens', {
         .notNull(),
     expires: timestamp('expires', { mode: 'date' }).notNull(),
 })
+
+export const chats = pgTable('chats', {
+    id: uuid('id').primaryKey().notNull().defaultRandom(),
+    createdAt: timestamp('createdAt').notNull(),
+    updatedAt: timestamp('updatedAt').notNull().defaultNow(),
+    messages: json('messages').notNull(),
+    userId: text('userId')
+        .notNull()
+        .references(() => users.id, { onDelete: 'cascade' }),
+})
+
+export type Chat = Omit<InferSelectModel<typeof chats>, 'messages'> & {
+    messages: Array<Message>
+}

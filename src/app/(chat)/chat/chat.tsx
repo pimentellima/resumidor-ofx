@@ -3,14 +3,37 @@ import { Button } from '@/components/ui/button'
 import { ChatRequestOptions, Message } from 'ai'
 import { useChat } from 'ai/react'
 import { ArrowUpIcon } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
-import BarChartMultiple from '../../components/bar-chart-multiple'
-import { PieChartComponent } from '../../components/pie-chart'
+import { useQueryClient } from 'react-query'
+import BarChartMultiple from '../../../components/bar-chart-multiple'
+import { PieChartComponent } from '../../../components/pie-chart'
 
-export default function Chat() {
+export default function Chat({
+    id,
+    initialMessages,
+}: {
+    id: string
+    initialMessages?: Array<Message>
+}) {
+    const router = useRouter()
+    const queryClient = useQueryClient()
+
     const { messages, handleSubmit, handleInputChange, input } = useChat({
         api: '/api/continue-conversation',
+        id,
+        onResponse: async () => {
+            if (messages.length === 0) {
+                await queryClient.refetchQueries(['history'])
+                router.push('/chat/' + id)
+            }
+        },
+        body: {
+            id,
+        },
+        initialMessages,
     })
+
     const messageEndRef = useRef<HTMLDivElement>(null)
     const scrollToBottom = () => {
         const scrollHeight = messageEndRef.current?.scrollHeight

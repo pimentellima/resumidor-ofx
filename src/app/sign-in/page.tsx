@@ -1,14 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { getServerSession } from 'next-auth'
+import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import SignInOptions from '../../components/sign-in-options'
+import SignIn from './components/sign-in'
 
-export default async function SignInPage({
-    searchParams,
-}: {
-    searchParams: { [key: string]: string }
-}) {
-    const session = await getServerSession()
+export default async function SignInPage() {
+    const session = await auth()
 
     if (session?.user) {
         redirect('/chat')
@@ -21,7 +17,7 @@ export default async function SignInPage({
                     <CardTitle className="text-2xl">Sign in</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <SignInOptions />
+                    <SignIn />
                 </CardContent>
             </Card>
         </div>
