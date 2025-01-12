@@ -25,7 +25,11 @@ export default async function ChatLayout({
                 initialHistory={initialHistory}
                 initialImports={initialImports}
             />
-            <div className="py-3 pr-3 h-full w-full">{children}</div>
+            <div className="py-3 pr-3 h-full w-full">
+                <div className="w-full py-4 h-full border rounded-md bg-black">
+                    {children}
+                </div>
+            </div>
         </div>
     )
 }

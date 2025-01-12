@@ -2,6 +2,7 @@ import { auth } from '@/lib/auth'
 import { db } from '@/lib/db/index'
 import { bankImports, statements } from '@/lib/db/schema'
 import { generateStatementsFromCsv } from '@/lib/generate-statements-from-csv'
+import { revalidatePath } from 'next/cache'
 
 export async function POST(request: Request) {
     try {
@@ -29,6 +30,8 @@ export async function POST(request: Request) {
                 )
             })
         })
+
+        revalidatePath('/chat')
         return new Response('Success', { status: 200 })
     } catch (e) {
         console.log(e)

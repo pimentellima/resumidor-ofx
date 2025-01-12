@@ -15,6 +15,7 @@ export default async function ChatPage({ params }: { params: any }) {
 
     return (
         <Chat
+            hasUserImports={true}
             key={chatFromDb.id}
             id={chatFromDb.id}
             initialMessages={convertToUIMessages(

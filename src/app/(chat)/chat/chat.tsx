@@ -1,38 +1,42 @@
 'use client'
 import { Button } from '@/components/ui/button'
-import { ChatRequestOptions, Message } from 'ai'
+import { ChatRequestOptions, CreateMessage, Message } from 'ai'
 import { useChat } from 'ai/react'
-import { ArrowUpIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { useQueryClient } from 'react-query'
 import BarChartMultiple from '../../../components/bar-chart-multiple'
 import { PieChartComponent } from '../../../components/pie-chart'
+import { ImportStatementsInput } from './components/import-statements-input'
+import InputBubble from './components/input-bubble'
 
 export default function Chat({
     id,
     initialMessages,
+    hasUserImports,
 }: {
     id: string
     initialMessages?: Array<Message>
+    hasUserImports?: boolean
 }) {
     const router = useRouter()
     const queryClient = useQueryClient()
 
-    const { messages, handleSubmit, handleInputChange, input } = useChat({
-        api: '/api/continue-conversation',
-        id,
-        onResponse: async () => {
-            if (messages.length === 0) {
-                await queryClient.refetchQueries(['history'])
-                router.push('/chat/' + id)
-            }
-        },
-        body: {
+    const { messages, handleSubmit, handleInputChange, input, append } =
+        useChat({
+            api: '/api/continue-conversation',
             id,
-        },
-        initialMessages,
-    })
+            onFinish: async () => {
+                if (messages.length === 0) {
+                    await queryClient.refetchQueries(['history'])
+                    router.push('/chat/' + id)
+                }
+            },
+            body: {
+                id,
+            },
+            initialMessages,
+        })
 
     const messageEndRef = useRef<HTMLDivElement>(null)
     const scrollToBottom = () => {
@@ -47,34 +51,43 @@ export default function Chat({
     }, [messages])
 
     return (
-        <div className="w-full pb-4 pt-8 flex flex-col justify-between items-center h-full border rounded-md bg-black">
-            <div
-                className="overflow-auto pb-6 flex flex-col gap-10
-               leading-relaxed items-center w-[750px] relative"
-            >
-                {messages.map((message) =>
-                    message.role === 'user' ? (
-                        <UserMessage
-                            key={message.id}
-                            content={message.content}
-                        />
+        <div className="w-full flex flex-col justify-between items-center h-full">
+            <div className="overflow-auto w-full flex justify-center mb-10 ">
+                <div
+                    className="flex flex-col gap-10
+                   leading-relaxed items-center w-[750px] relative"
+                >
+                    {!hasUserImports ? (
+                        <ImportStatementsInput />
+                    ) : messages.length === 0 ? (
+                        <QuestionPrompts appendMessage={append} />
                     ) : (
-                        <BotMessage
-                            key={message.id}
-                            message={message}
-                            isLastMessage={
-                                messages.findIndex(
-                                    (m) => m.id === message.id
-                                ) ===
-                                messages.length - 1
-                            }
-                        />
-                    )
-                )}
-                <div ref={messageEndRef} />
+                        messages.map((message) =>
+                            message.role === 'user' ? (
+                                <UserMessage
+                                    key={message.id}
+                                    content={message.content}
+                                />
+                            ) : (
+                                <BotMessage
+                                    key={message.id}
+                                    message={message}
+                                    isLastMessage={
+                                        messages.findIndex(
+                                            (m) => m.id === message.id
+                                        ) ===
+                                        messages.length - 1
+                                    }
+                                />
+                            )
+                        )
+                    )}
+                    <div ref={messageEndRef} />
+                </div>
             </div>
             <div className="w-[750px]">
                 <InputBubble
+                    disabled={!hasUserImports}
                     scrollToBottom={scrollToBottom}
                     handleSubmit={handleSubmit}
                     handleInputChange={handleInputChange}
@@ -141,61 +154,6 @@ function BotMessage({
     )
 }
 
-function InputBubble({
-    handleSubmit,
-    scrollToBottom,
-    input,
-    handleInputChange,
-}: {
-    handleSubmit: (
-        event?: {
-            preventDefault?: () => void
-        },
-        chatRequestOptions?: ChatRequestOptions
-    ) => void
-    scrollToBottom: () => void
-    input: string
-    handleInputChange: (
-        e:
-            | React.ChangeEvent<HTMLInputElement>
-            | React.ChangeEvent<HTMLTextAreaElement>
-    ) => void
-}) {
-    return (
-        <form
-            className="flex justify-end items-end flex-col shadow-2xl 
-            bg-background text-foreground rounded-md p-4 pr-3 border"
-            onSubmit={handleSubmit}
-        >
-            <textarea
-                onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                        e.preventDefault()
-                        handleSubmit()
-                        scrollToBottom()
-                    }
-                }}
-                value={input}
-                onChange={handleInputChange}
-                rows={2}
-                placeholder="Digite sua pergunta (max 1000 caractéres)"
-                maxLength={1000}
-                className="resize-none !text-base pb-6 w-full 
-                bg-transparent focus:outline-none placeholder:text-muted-foreground"
-            />
-            <button
-                type="submit"
-                disabled={!input}
-                className="rounded-full mb-2 mr-2 bg-accent-foreground w-9 h-9
-                flex justify-center items-center hover:opacity-80 transition-opacity 
-                disabled:opacity-60 disabled:cursor-default"
-            >
-                <ArrowUpIcon className="text-accent h-6" />
-            </button>
-        </form>
-    )
-}
-
 function UserMessage({ content }: { content: string }) {
     return (
         <div className="flex justify-end w-full px-2 items-center">
@@ -206,17 +164,54 @@ function UserMessage({ content }: { content: string }) {
     )
 }
 
-function EmptyChat() {
+function QuestionPrompts({
+    appendMessage,
+}: {
+    appendMessage: (
+        message: Message | CreateMessage,
+        chatRequestOptions?: ChatRequestOptions
+    ) => Promise<string | null | undefined>
+}) {
     return (
-        <div className="flex justify-center flex-wrap gap-1">
-            <QuestionButton question="Qual foi o meu saldo entre os dias 15 e 24?" />
-            <QuestionButton question="Quanto eu gastei com transporte nas duas primeiras semanas?" />
-            <QuestionButton question="Eu paguei a internet esse mês?" />
-            <QuestionButton question="Faça um resumo dos gastos com lazer." />
+        <div className="grid gap-1 grid-cols-2">
+            <QuestionButton
+                appendMessage={appendMessage}
+                question="Com que eu mais gastei no mês de janeiro?"
+            />
+            <QuestionButton
+                appendMessage={appendMessage}
+                question="Faça um gráfico comparando os gastos com alimentação e transporte desse mês."
+            />
+            <QuestionButton
+                appendMessage={appendMessage}
+                question="Quanto eu gastei com transporte no mês passado?"
+            />
+            <QuestionButton
+                appendMessage={appendMessage}
+                question="Mostre o meu gasto com lazer ao longo do ano."
+            />
         </div>
     )
 }
 
-function QuestionButton({ question }: { question: string }) {
-    return <Button variant={'outline'}>{question}</Button>
+function QuestionButton({
+    question,
+    appendMessage,
+}: {
+    question: string
+    appendMessage: (
+        message: Message | CreateMessage,
+        chatRequestOptions?: ChatRequestOptions
+    ) => Promise<string | null | undefined>
+}) {
+    return (
+        <Button
+            onClick={() => appendMessage({ content: question, role: 'user' })}
+            size="lg"
+            variant={'outline'}
+            className="text-wrap h-14"
+        >
+            {question}
+        </Button>
+    )
 }
