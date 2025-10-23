@@ -14,7 +14,7 @@ export default function ChatHistory({ history }: { history: Chat[] }) {
         <div className="contents">
             {history.map((chat, i) => {
                 const assistantMessage = chat.messages
-                    .filter((message) => message.role === 'assistant')
+                    .filter((message) => message.role === 'user')
                     .map((message: Message) =>
                         typeof message.content === 'string'
                             ? message.content
@@ -36,9 +36,10 @@ export default function ChatHistory({ history }: { history: Chat[] }) {
                         hover:via-transparent hover:to-transparent"
                     >
                         <Link href={'/chat/' + chat.id}>
-                            {params.id === chat.id && (
-                                <DotIcon className="text-accent-foreground" />
-                            )}
+                            <DotIcon
+                                data-hidden={params.id !== chat.id}
+                                className="text-accent-foreground w-32 data-[hidden=true]:w-0 transition-[width]"
+                            />
                             {assistantMessage}
                         </Link>
                     </Button>
