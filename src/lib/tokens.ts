@@ -3,7 +3,7 @@ import { refreshTokens } from '@/lib/db/schema'
 import { eq } from 'drizzle-orm'
 import { JWT } from 'next-auth/jwt'
 import 'server-only'
-import { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from '../constants'
+import { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from './constants'
 
 const TOKEN_TTL = 2 * 24 * 60 * 60 * 1000
 

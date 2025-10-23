@@ -1,6 +1,6 @@
 import { desc, eq } from 'drizzle-orm'
-import { db } from '../index'
-import { Chat, chats } from '../schema'
+import { db } from '../db'
+import { Chat, chats } from '../db/schema'
 
 export default async function getUserChatHistory(userId: string) {
     const history = (await db.query.chats.findMany({

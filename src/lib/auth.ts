@@ -14,7 +14,7 @@ import GithubProvider from 'next-auth/providers/github'
 import GoogleProvider from 'next-auth/providers/google'
 import { ACCESS_TOKEN_TTL } from './constants'
 import { sendVerificationRequest } from './send-verification-request'
-import { obtainAccessToken, refreshAccessToken } from './services/auth'
+import { obtainAccessToken, refreshAccessToken } from './tokens'
 
 export const authOptions = {
     adapter: DrizzleAdapter(db, {
