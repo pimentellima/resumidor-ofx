@@ -1,6 +1,6 @@
 import { PostgresJsDatabase, drizzle } from 'drizzle-orm/postgres-js'
 import postgres from 'postgres'
-import '../envConfig'
+import '../env-config'
 import * as schema from './schema'
 
 let db: PostgresJsDatabase<typeof schema>
