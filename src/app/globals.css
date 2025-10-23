@@ -40,6 +40,10 @@
         @apply bg-background text-foreground;
     }
 
+    .bg-gradient {
+        @apply bg-gradient-to-b from-background from-0% via-primary/20 via-70% to-background to-100%;
+    }
+
     ::-webkit-scrollbar {
         width: 12px;
     }

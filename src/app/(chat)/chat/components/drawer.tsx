@@ -2,7 +2,8 @@
 
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
-import { BankImport, Chat } from '@/lib/db/schema'
+import useHistory from '@/lib/hooks/use-history'
+import useImports from '@/lib/hooks/use-imports'
 import {
     ArrowLeftFromLineIcon,
     FileIcon,
@@ -10,49 +11,17 @@ import {
     LogOutIcon,
     PlusIcon,
 } from 'lucide-react'
-import { signOut, useSession } from 'next-auth/react'
+import { signOut } from 'next-auth/react'
 import Link from 'next/link'
 import { useState } from 'react'
-import { useQuery } from 'react-query'
 import ChatHistory from './chat-history'
 import { ImportStatementsDialog } from './import-statements-dialog'
 
-async function fetchUserHistory() {
-    const response = await fetch('/api/history')
-    if (!response.ok) throw new Error('Failed to fetch user history')
-    return await response.json()
-}
-
-async function fetchUserImports() {
-    const response = await fetch('/api/imports')
-    if (!response.ok) throw new Error('Failed to fetch user imports')
-    return await response.json()
-}
-
-export default function Drawer({
-    initialImports,
-    initialHistory,
-}: {
-    initialImports: BankImport[]
-    initialHistory: Chat[]
-}) {
-    const { data: session } = useSession()
+export default function Drawer() {
     const [open, setOpen] = useState(false)
 
-    const { data: imports } = useQuery({
-        queryKey: ['imports', session?.user.id],
-        queryFn: fetchUserImports,
-        enabled: !!session?.user.id,
-        initialData: initialImports,
-    })
-
-    const { data: history } = useQuery({
-        queryKey: ['history', session?.user.id],
-        queryFn: fetchUserHistory,
-        enabled: !!session?.user.id,
-        initialData: initialHistory,
-        refetchOnWindowFocus: true,
-    })
+    const { data: imports } = useImports()
+    const { data: history } = useHistory()
 
     return (
         <div className="flex h-full">
@@ -70,7 +39,7 @@ export default function Drawer({
                         data-open={open}
                         className="data-[open=true]:rotate-0 rotate-180 transition-transform"
                     />
-                    {open && 'Fechar'}
+                    {open && 'Close'}
                 </Button>
                 <ImportStatementsDialog imports={imports}>
                     <Button
@@ -78,7 +47,10 @@ export default function Drawer({
                         className="w-full overflow-hidden"
                     >
                         <FileIcon />
-                        {open && 'Importar extratos'}
+                        {open &&
+                            `${
+                                imports.length > 0 ? `(${imports.length}) ` : ''
+                            }Import statements`}
                     </Button>
                 </ImportStatementsDialog>
                 <Button
@@ -88,7 +60,7 @@ export default function Drawer({
                 >
                     <Link href={'/chat'}>
                         <PlusIcon />
-                        {open && 'Novo chat'}
+                        {open && 'New chat'}
                     </Link>
                 </Button>
                 {!open ? (
@@ -108,11 +80,11 @@ export default function Drawer({
                 <div className="flex-1 flex items-end w-full">
                     <Button
                         onClick={() => signOut()}
-                        variant="destructive"
+                        variant="ghost"
                         className="w-full overflow-hidden"
                     >
                         <LogOutIcon />
-                        {open && 'Sair'}
+                        {open && 'Sign out'}
                     </Button>
                 </div>
             </div>

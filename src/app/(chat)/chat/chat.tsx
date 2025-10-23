@@ -1,10 +1,11 @@
 'use client'
 import { Button } from '@/components/ui/button'
+import useImports from '@/lib/hooks/use-imports'
+import { useQueryClient } from '@tanstack/react-query'
 import { ChatRequestOptions, CreateMessage, Message } from 'ai'
 import { useChat } from 'ai/react'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef } from 'react'
-import { useQueryClient } from 'react-query'
 import BarChartMultiple from '../../../components/bar-chart-multiple'
 import { PieChartComponent } from '../../../components/pie-chart'
 import { ImportStatementsInput } from './components/import-statements-input'
@@ -13,14 +14,14 @@ import InputBubble from './components/input-bubble'
 export default function Chat({
     id,
     initialMessages,
-    hasUserImports,
 }: {
     id: string
     initialMessages?: Array<Message>
-    hasUserImports?: boolean
 }) {
     const router = useRouter()
     const queryClient = useQueryClient()
+    const { data: imports } = useImports()
+    const userHasImports = imports && imports.length > 0
 
     const { messages, handleSubmit, handleInputChange, input, append } =
         useChat({
@@ -28,7 +29,9 @@ export default function Chat({
             id,
             onFinish: async () => {
                 if (messages.length === 0) {
-                    await queryClient.refetchQueries(['history'])
+                    await queryClient.refetchQueries({
+                        queryKey: ['history'],
+                    })
                     router.push('/chat/' + id)
                 }
             },
@@ -57,8 +60,10 @@ export default function Chat({
                     className="flex flex-col gap-10
                    leading-relaxed items-center w-[750px] relative"
                 >
-                    {!hasUserImports ? (
-                        <ImportStatementsInput />
+                    {!userHasImports ? (
+                        <div className="flex justify-center items-center h-full">
+                            <ImportStatementsInput />
+                        </div>
                     ) : messages.length === 0 ? (
                         <QuestionPrompts appendMessage={append} />
                     ) : (
@@ -87,7 +92,7 @@ export default function Chat({
             </div>
             <div className="w-[750px]">
                 <InputBubble
-                    disabled={!hasUserImports}
+                    disabled={!userHasImports}
                     scrollToBottom={scrollToBottom}
                     handleSubmit={handleSubmit}
                     handleInputChange={handleInputChange}

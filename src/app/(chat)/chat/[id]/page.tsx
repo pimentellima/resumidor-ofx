@@ -2,6 +2,7 @@ import { getChatById } from '@/lib/chat/get-chat-by-id'
 import { convertToUIMessages } from '@/lib/utils'
 import { CoreMessage } from 'ai'
 import { redirect } from 'next/navigation'
+import { Suspense } from 'react'
 import Chat from '../chat'
 
 export default async function ChatPage({ params }: { params: any }) {
@@ -14,13 +15,15 @@ export default async function ChatPage({ params }: { params: any }) {
     }
 
     return (
-        <Chat
-            hasUserImports={true}
-            key={chatFromDb.id}
-            id={chatFromDb.id}
-            initialMessages={convertToUIMessages(
-                chatFromDb.messages as Array<CoreMessage>
-            )}
-        />
+        <Suspense fallback={null}>
+            <Chat
+                hasUserImports={true}
+                key={chatFromDb.id}
+                id={chatFromDb.id}
+                initialMessages={convertToUIMessages(
+                    chatFromDb.messages as Array<CoreMessage>
+                )}
+            />
+        </Suspense>
     )
 }

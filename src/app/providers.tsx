@@ -1,9 +1,9 @@
 'use client'
 import { Toaster } from '@/components/ui/toaster'
 import { ToastProvider } from '@radix-ui/react-toast'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { SessionProvider } from 'next-auth/react'
 import { ThemeProvider as NextThemesProvider } from 'next-themes'
-import { QueryClient, QueryClientProvider } from 'react-query'
 
 const queryClient = new QueryClient()
 

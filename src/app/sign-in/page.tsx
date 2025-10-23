@@ -1,25 +1,33 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
-import SignIn from './components/sign-in'
+import ProvidersSignIn from './components/providers-sign-in'
+import SignInWithEmail from './components/sign-in-with-email'
 
-export default async function SignInPage() {
+export default async function SignIn() {
     const session = await auth()
 
     if (session?.user) {
         redirect('/chat')
     }
-
     return (
-        <div className="flex items-center justify-center h-screen px-3 bg-background md:px-0">
-            <Card className="w-full mx-2 md:w-[400px]">
-                <CardHeader>
-                    <CardTitle className="text-2xl">Sign in</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <SignIn />
-                </CardContent>
-            </Card>
+        <div className="h-screen flex justify-center items-center">
+            <div className="px-6  sm:px-0 col-span-1 h-full bg-background flex items-center justify-center ">
+                <div className="space-y-6 w-96">
+                    <h1 className="text-2xl font-bold">
+                        Chat with your financial statements.
+                    </h1>
+                    <ProvidersSignIn />
+                    <div className="flex items-center gap-2">
+                        <div className="w-full h-0.5 bg-muted" />
+                        <span className="text-xs font-bold text-muted-foreground">
+                            OR
+                        </span>
+                        <div className="w-full h-0.5 bg-muted" />
+                    </div>
+                    <SignInWithEmail />
+                    <div className="w-full h-0.5 bg-muted" />
+                </div>
+            </div>
         </div>
     )
 }

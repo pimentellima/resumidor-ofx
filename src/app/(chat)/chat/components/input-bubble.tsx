@@ -50,6 +50,7 @@ export default function InputBubble({
                 bg-transparent focus:outline-none placeholder:text-muted-foreground"
             />
             <button
+                title="Enviar mensagem"
                 type="submit"
                 disabled={!input || disabled}
                 className="rounded-full mb-2 mr-2 bg-accent-foreground w-9 h-9

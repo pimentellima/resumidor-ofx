@@ -11,7 +11,7 @@ export default function SignoutButton() {
             onClick={() => signOut()}
         >
             <LogOutIcon />
-            Sair
+            Sign out
         </Button>
     )
 }

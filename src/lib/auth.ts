@@ -25,7 +25,7 @@ export const authOptions = {
     secret: process.env.NEXTAUTH_SECRET,
     pages: {
         signIn: '/sign-in',
-        verifyRequest: '/sign-in/verify',
+        verifyRequest: '/sign-in',
     },
     session: {
         strategy: 'jwt',
