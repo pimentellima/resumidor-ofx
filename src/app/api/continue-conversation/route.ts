@@ -1,6 +1,6 @@
 import { tools } from '@/lib/ai/tools'
 import { auth } from '@/lib/auth'
-import { saveChat } from '@/lib/db/queries/save-chat'
+import { saveChat } from '@/lib/chat/save-chat'
 import { openai } from '@ai-sdk/openai'
 import { convertToCoreMessages, streamText } from 'ai'
 

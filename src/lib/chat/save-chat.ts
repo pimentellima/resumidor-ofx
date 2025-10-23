@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
-import { db } from '../index'
-import { chats } from '../schema'
+import { db } from '../db'
+import { chats } from '../db/schema'
 
 export async function saveChat({
     id,

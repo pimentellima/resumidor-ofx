@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth'
-import getUserImports from '@/lib/db/queries/get-user-imports'
+import getUserImports from '@/lib/chat/get-user-imports'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {

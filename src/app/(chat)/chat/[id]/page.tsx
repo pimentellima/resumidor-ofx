@@ -1,4 +1,4 @@
-import { getChatById } from '@/lib/db/queries/get-chat-by-id'
+import { getChatById } from '@/lib/chat/get-chat-by-id'
 import { convertToUIMessages } from '@/lib/utils'
 import { CoreMessage } from 'ai'
 import { redirect } from 'next/navigation'

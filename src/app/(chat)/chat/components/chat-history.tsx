@@ -20,7 +20,7 @@ export default function ChatHistory({ history }: { history: Chat[] }) {
                             ? message.content
                             : ((message.content as any).find(
                                   (content: any) => content.type === 'text'
-                              ).text as string)
+                              )?.text as string)
                     )
                     .filter((content) => content !== '')[0]
                 return (

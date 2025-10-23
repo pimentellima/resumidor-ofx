@@ -1,6 +1,6 @@
 import { auth } from '@/lib/auth'
-import getUserChatHistory from '@/lib/db/queries/get-user-chat-history'
-import getUserImports from '@/lib/db/queries/get-user-imports'
+import getUserChatHistory from '@/lib/chat/get-user-chat-history'
+import getUserImports from '@/lib/chat/get-user-imports'
 import { redirect } from 'next/navigation'
 import { ReactNode } from 'react'
 import Drawer from './chat/components/drawer'

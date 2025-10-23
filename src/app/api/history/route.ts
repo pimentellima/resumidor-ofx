@@ -1,5 +1,5 @@
 import { auth } from '@/lib/auth'
-import getUserChatHistory from '@/lib/db/queries/get-user-chat-history'
+import getUserChatHistory from '@/lib/chat/get-user-chat-history'
 import { NextResponse } from 'next/server'
 
 export async function GET(request: Request) {
