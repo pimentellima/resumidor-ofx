@@ -17,7 +17,7 @@ import { DialogDescription } from '@radix-ui/react-dialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { InferSelectModel } from 'drizzle-orm'
-import { FileIcon, Loader2Icon, LoaderIcon, TrashIcon } from 'lucide-react'
+import { FileIcon, Loader2Icon, TrashIcon } from 'lucide-react'
 import { ChangeEvent, ReactNode, useState } from 'react'
 
 export function ImportStatementsDialog({
@@ -61,32 +61,29 @@ export function ImportStatementsDialog({
                 </div>
                 {imports && imports.length > 0 && <Separator />}
                 <div className="flex flex-col">
-                    <div className="flex gap-1">
+                    <div className="flex gap-1 text-foreground">
                         <Input
-                            id="files"
-                            name="files"
-                            type="file"
-                            disabled={isPending}
-                            accept=".csv"
-                            multiple={true}
                             onChange={handleChangeFile}
+                            id={'file-input'}
+                            type="file"
+                            className="text-muted-foreground file:border-input file:text-foreground 
+                                p-0 pr-3 italic file:mr-3 file:h-full file:border-0 
+                                file:border-r file:border-solid file:bg-transparent file:px-3 file:text-sm 
+                                file:font-medium file:not-italic"
                         />
-                        {files && (
-                            <Button
-                                disabled={isPending}
-                                onClick={() => mutate(files)}
-                                variant={'outline'}
-                            >
-                                {isPending ? (
-                                    <div className="flex items-center gap-1">
-                                        <LoaderIcon className="w-4 h-4 animate-spin" />
-                                        <span>Importando</span>
-                                    </div>
-                                ) : (
-                                    'Importar'
-                                )}
-                            </Button>
-                        )}
+                        <Button
+                            disabled={isPending || !files || files.length === 0}
+                            onClick={() => mutate(files!)}
+                        >
+                            {isPending ? (
+                                <div className="flex items-center gap-1">
+                                    <Loader2Icon className="w-4 h-4 animate-spin" />
+                                    <span>Importing</span>
+                                </div>
+                            ) : (
+                                'Import'
+                            )}
+                        </Button>
                     </div>
                 </div>
             </DialogContent>
@@ -123,7 +120,7 @@ function BankImportItem({
         <div className="flex gap-1 items-center border rounded-md p-2">
             <FileIcon className="h-5 w-5" />
             <span className="text-sm">
-                {'Importado em ' +
+                {'Imported at ' +
                     format(bankImport.createdAt, 'dd/MM/yyyy HH:mm')}
             </span>
             <div className="flex flex-1 gap-1 justify-end">

@@ -30,7 +30,6 @@ export default function SignInWithEmail() {
         try {
             await signIn('email', {
                 email: data.email,
-                callbackUrl,
                 redirect: false,
             })
             toast({
@@ -58,6 +57,7 @@ export default function SignInWithEmail() {
                             <FormLabel>E-mail</FormLabel>
                             <FormControl>
                                 <Input
+                                    className="bg-background"
                                     placeholder="email@dominio.com"
                                     {...field}
                                 />

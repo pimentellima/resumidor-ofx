@@ -7,14 +7,14 @@ export default function ProvidersSignIn() {
         <div className="flex flex-col gap-4">
             <Button
                 onClick={async () => await signIn('google')}
-                variant="secondary"
+                variant="outline"
                 className="w-full"
             >
                 Continue with Google
             </Button>
             <Button
                 onClick={async () => await signIn('github')}
-                variant="secondary"
+                variant="outline"
                 className="w-full"
             >
                 Continue with Github
