@@ -29,7 +29,6 @@ export default function InputBubble({
                         handleSubmit()
                     }
                 }}
-                className="bg-green-300"
                 value={input}
                 onChange={(e) => handleInputChange(e.target.value)}
                 placeholder="Ask something"

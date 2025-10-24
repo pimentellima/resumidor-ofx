@@ -1,4 +1,3 @@
-import { SendVerificationRequestParams } from 'next-auth/providers/email'
 import nodemailer from 'nodemailer'
 
 async function sendEmail(emailAddress: string, subject: string, html: string) {
@@ -18,9 +17,7 @@ async function sendEmail(emailAddress: string, subject: string, html: string) {
     })
 }
 
-export const sendVerificationRequest = async (
-    params: SendVerificationRequestParams
-) => {
+export const sendVerificationRequest = async (params: any) => {
     let {
         identifier: email,
         url,

@@ -67,7 +67,7 @@ export default function Chat({
     }, [messages])
 
     return (
-        <div className="w-full flex flex-col justify-between items-center h-full">
+        <div className="w-full flex flex-col justify-between items-center h-full px-2">
             <div className="overflow-auto w-full flex justify-center mb-10 ">
                 <div
                     className="flex flex-col gap-10
@@ -105,7 +105,7 @@ export default function Chat({
                     <div ref={messageEndRef} />
                 </div>
             </div>
-            <div className="w-[750px]">
+            <div className="w-full sm:w-[750px]">
                 <InputBubble
                     disabled={!userHasImports}
                     handleSubmit={submitMessage}

@@ -15,7 +15,7 @@ export default async function SignIn() {
                 <CardHeader>
                     <CardTitle>Sign in to your account</CardTitle>
                 </CardHeader>
-                <CardContent className="w-96">
+                <CardContent className="sm:w-96">
                     <ProvidersSignIn />
                 </CardContent>
             </Card>
