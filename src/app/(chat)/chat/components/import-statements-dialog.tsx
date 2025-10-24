@@ -40,8 +40,6 @@ export function ImportStatementsDialog({
         onSuccess: () => setFiles(null),
     })
 
-    console.log(files)
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>

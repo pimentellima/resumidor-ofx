@@ -7,7 +7,6 @@ import useImports from '@/lib/hooks/use-imports'
 import {
     ArrowLeftFromLineIcon,
     FileIcon,
-    HistoryIcon,
     LogOutIcon,
     PlusIcon,
 } from 'lucide-react'
@@ -39,7 +38,17 @@ export default function Drawer() {
                         data-open={open}
                         className="data-[open=true]:rotate-0 rotate-180 transition-transform"
                     />
-                    {open && 'Close'}
+                    {open && 'Close drawer'}
+                </Button>
+                <Button
+                    asChild
+                    variant={'ghost'}
+                    className="w-full overflow-hidden"
+                >
+                    <Link href={'/chat'}>
+                        <PlusIcon />
+                        {open && 'New chat'}
+                    </Link>
                 </Button>
                 <ImportStatementsDialog imports={imports}>
                     <Button
@@ -55,25 +64,8 @@ export default function Drawer() {
                             }Import statements`}
                     </Button>
                 </ImportStatementsDialog>
-                <Button
-                    asChild
-                    variant={'default'}
-                    className="w-full overflow-hidden"
-                >
-                    <Link href={'/chat'}>
-                        <PlusIcon />
-                        {open && 'New chat'}
-                    </Link>
-                </Button>
-                {!open ? (
-                    <Button
-                        onClick={() => setOpen(true)}
-                        variant="ghost"
-                        className="w-full"
-                    >
-                        <HistoryIcon className="" />
-                    </Button>
-                ) : (
+
+                {open && (
                     <div className="contents w-full mt-10">
                         <Separator className="opacity-70" />
                         <ChatHistory chat={history} />
