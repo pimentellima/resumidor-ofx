@@ -21,7 +21,7 @@ export default function InputBubble({
     disabled?: boolean
 }) {
     return (
-        <InputGroup>
+        <InputGroup className="bg-background">
             <InputGroupTextarea
                 onKeyDown={(e) => {
                     if (e.key === 'Enter' && !e.shiftKey) {
@@ -29,11 +29,12 @@ export default function InputBubble({
                         handleSubmit()
                     }
                 }}
+                className="bg-green-300"
                 value={input}
                 onChange={(e) => handleInputChange(e.target.value)}
                 placeholder="Ask something"
             />
-            <InputGroupAddon align="block-end" className="border-t">
+            <InputGroupAddon className="bg-back" align="block-end">
                 <InputGroupButton
                     onClick={() => {
                         handleSubmit()

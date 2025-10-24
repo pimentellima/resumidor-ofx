@@ -46,7 +46,6 @@ export default function Chat({
             }
         },
     })
-    console.log(chatId)
     const messageEndRef = useRef<HTMLDivElement>(null)
     const scrollToBottom = () => {
         const scrollHeight = messageEndRef.current?.scrollHeight
@@ -205,7 +204,7 @@ function QuestionPrompts({
     sendMessage: (text: string) => void
 }) {
     return (
-        <div className="grid gap-1 grid-cols-2">
+        <div className="grid gap-1">
             <QuestionButton
                 sendMessage={sendMessage}
                 question="Com que eu mais gastei no mês de janeiro?"
@@ -238,7 +237,7 @@ function QuestionButton({
             onClick={() => sendMessage(question)}
             size="lg"
             variant={'outline'}
-            className="text-wrap h-14"
+            className="text-wrap hover:bg-background/50"
         >
             {question}
         </Button>

@@ -35,7 +35,7 @@ export default async function ChatLayout({
             <div className="h-screen bg-background items-center flex">
                 <Drawer />
                 <div className="py-3 pr-3 h-full w-full">
-                    <div className="w-full py-4 h-full border rounded-md bg-black">
+                    <div className="w-full py-4 h-full border rounded-md bg-muted/50">
                         {children}
                     </div>
                 </div>
