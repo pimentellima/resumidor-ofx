@@ -1,13 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import { getChatHistory } from '../actions/history'
 
-async function fetchUserHistory() {
-    const response = await fetch('/api/history')
-    if (!response.ok) throw new Error('Failed to fetch user history')
-    return await response.json()
-}
 export default function useHistory() {
     return useQuery({
         queryKey: ['history'],
-        queryFn: fetchUserHistory,
+        queryFn: async () => getChatHistory(),
     })
 }

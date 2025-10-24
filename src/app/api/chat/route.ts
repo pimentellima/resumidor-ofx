@@ -2,7 +2,7 @@ import { tools } from '@/lib/ai/tools'
 import { auth } from '@/lib/auth'
 import { saveChat } from '@/lib/chat/save-chat'
 import { openai } from '@ai-sdk/openai'
-import { convertToCoreMessages, streamText } from 'ai'
+import { convertToModelMessages, stepCountIs, streamText } from 'ai'
 
 export async function POST(request: Request) {
     const { messages, id } = await request.json()
@@ -11,10 +11,10 @@ export async function POST(request: Request) {
         return new Response('Unauthorized', { status: 401 })
     }
 
-    const coreMessages = convertToCoreMessages(messages)
+    const modelMessages = convertToModelMessages(messages)
 
     const result = streamText({
-        model: openai('gpt-4o'),
+        model: openai('gpt-4.1-mini'),
         tools,
         system: `Your job is to check your knowledge base, generate a query and query the database before answering any questions.
         Only respond to questions using information from tool calls.
@@ -44,13 +44,13 @@ export async function POST(request: Request) {
         You will respond based on information retrieved from the database.
         
         Quando você gerar um chart, não precisa listar as informações novamente, só diga que gerou o chart de maneira curta.`,
-        messages,
-        maxSteps: 10,
+        messages: modelMessages,
+        stopWhen: stepCountIs(10),
         onFinish: async ({ response }) => {
             try {
                 await saveChat({
                     id: id,
-                    messages: [...coreMessages, ...response.messages],
+                    messages: [...modelMessages, ...response.messages],
                     userId: session.user.id,
                 })
             } catch (error) {
@@ -60,5 +60,5 @@ export async function POST(request: Request) {
         },
     })
 
-    return result.toDataStreamResponse()
+    return result.toUIMessageStreamResponse()
 }

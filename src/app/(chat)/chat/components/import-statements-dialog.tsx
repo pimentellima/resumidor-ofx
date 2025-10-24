@@ -10,15 +10,14 @@ import {
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { toast } from '@/components/ui/use-toast'
-import { deleteImport } from '@/lib/actions/imports'
+import { deleteImport, importStatementsFromCsv } from '@/lib/actions/imports'
 import { bankImports } from '@/lib/db/schema'
-import useImportMutation from '@/lib/hooks/use-import'
 import { DialogDescription } from '@radix-ui/react-dialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { InferSelectModel } from 'drizzle-orm'
 import { FileIcon, Loader2Icon, LoaderIcon, TrashIcon } from 'lucide-react'
-import { ChangeEvent, ReactNode, useState } from 'react'
+import { ChangeEvent, ReactNode, useActionState, useState } from 'react'
 
 export function ImportStatementsDialog({
     imports,
@@ -36,12 +35,10 @@ export function ImportStatementsDialog({
         }
         setFiles(e.target.files)
     }
-    const { mutate, isPending } = useImportMutation({
-        onSuccess: () => {
-            setFiles(null)
-        },
-    })
-
+    const [error, formAction, pending] = useActionState(
+        importStatementsFromCsv,
+        ''
+    )
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
@@ -63,22 +60,23 @@ export function ImportStatementsDialog({
                 </div>
                 {imports?.length > 0 && <Separator />}
                 <div className="flex flex-col">
-                    <div className="flex gap-1">
+                    <form action={formAction} className="flex gap-1">
                         <Input
-                            id="file"
+                            id="files"
+                            name="files"
                             type="file"
-                            disabled={isPending}
+                            disabled={pending}
                             accept=".csv"
                             multiple={true}
                             onChange={handleChangeFile}
                         />
                         {files && (
                             <Button
-                                disabled={isPending}
-                                onClick={() => mutate(files)}
+                                disabled={pending}
+                                type="submit"
                                 variant={'outline'}
                             >
-                                {isPending ? (
+                                {pending ? (
                                     <div className="flex items-center gap-1">
                                         <LoaderIcon className="w-4 h-4 animate-spin" />
                                         <span>Importando</span>
@@ -88,7 +86,12 @@ export function ImportStatementsDialog({
                                 )}
                             </Button>
                         )}
-                    </div>
+                        {error && (
+                            <span className="text-sm text-destructive">
+                                {error}
+                            </span>
+                        )}
+                    </form>
                 </div>
             </DialogContent>
         </Dialog>
@@ -105,10 +108,7 @@ function BankImportItem({
     const queryClient = useQueryClient()
     const { mutate, isPending } = useMutation({
         mutationKey: ['imports'],
-        mutationFn: async () => {
-            const error = await deleteImport(bankImport.id)
-            if (error) throw new Error('Failed to delete import')
-        },
+        mutationFn: async () => deleteImport(bankImport.id),
         onSuccess: async () => {
             await queryClient.refetchQueries({
                 queryKey: ['imports'],
