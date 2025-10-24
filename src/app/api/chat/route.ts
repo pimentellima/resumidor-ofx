@@ -1,18 +1,35 @@
 import { tools } from '@/lib/ai/tools'
 import { auth } from '@/lib/auth'
+import { getChatById } from '@/lib/chat/get-chat-by-id'
 import { saveChat } from '@/lib/chat/save-chat'
 import { openai } from '@ai-sdk/openai'
-import { convertToModelMessages, stepCountIs, streamText } from 'ai'
+import {
+    convertToModelMessages,
+    createIdGenerator,
+    stepCountIs,
+    streamText,
+    UIMessage,
+    validateUIMessages,
+} from 'ai'
 
 export async function POST(request: Request) {
-    const { messages, id } = await request.json()
     const session = await auth()
     if (!session?.user.id) {
         return new Response('Unauthorized', { status: 401 })
     }
 
-    const modelMessages = convertToModelMessages(messages)
+    const { message, id: chatId } = await request.json()
+    console.log('Chat ID:', chatId)
+    console.log('Received message:', message)
 
+    const previousMessages =
+        ((await getChatById(chatId))?.messages as UIMessage[]) || []
+
+    console.log('Previous messages:', previousMessages)
+    const validatedMessages = await validateUIMessages({
+        messages: [...previousMessages, message],
+    })
+    console.log('Validated messages:', validatedMessages)
     const result = streamText({
         model: openai('gpt-4.1-mini'),
         tools,
@@ -44,21 +61,22 @@ export async function POST(request: Request) {
         You will respond based on information retrieved from the database.
         
         Quando você gerar um chart, não precisa listar as informações novamente, só diga que gerou o chart de maneira curta.`,
-        messages: modelMessages,
+        messages: convertToModelMessages(validatedMessages),
         stopWhen: stepCountIs(10),
-        onFinish: async ({ response }) => {
-            try {
-                await saveChat({
-                    id: id,
-                    messages: [...modelMessages, ...response.messages],
-                    userId: session.user.id,
-                })
-            } catch (error) {
-                console.log(error)
-                console.error('Failed to save chat')
-            }
-        },
     })
 
-    return result.toUIMessageStreamResponse()
+    return result.toUIMessageStreamResponse({
+        originalMessages: validatedMessages,
+        generateMessageId: createIdGenerator({
+            prefix: 'msg',
+            size: 16,
+        }),
+        onFinish: ({ messages }) => {
+            saveChat({
+                userId: session.user.id as string,
+                chatId,
+                messages,
+            })
+        },
+    })
 }

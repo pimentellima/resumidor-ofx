@@ -1,28 +1,26 @@
 import { getChatById } from '@/lib/chat/get-chat-by-id'
-import { convertToUIMessages } from '@/lib/utils'
-import { CoreMessage } from 'ai'
+import { UIMessage } from 'ai'
 import { redirect } from 'next/navigation'
 import { Suspense } from 'react'
 import Chat from '../chat'
 
-export default async function ChatPage({ params }: { params: any }) {
-    const { id } = params
-    const chatFromDb = await getChatById({ id })
+export default async function ChatPage({
+    params,
+}: {
+    params: Promise<{ id: string }>
+}) {
+    const { id } = await params
+    const chatFromDb = await getChatById(id)
 
     if (!chatFromDb) {
-        // mostrar toast de erro
         redirect('/chat')
     }
 
     return (
         <Suspense fallback={null}>
             <Chat
-                hasUserImports={true}
-                key={chatFromDb.id}
                 id={chatFromDb.id}
-                initialMessages={convertToUIMessages(
-                    chatFromDb.messages as Array<CoreMessage>
-                )}
+                initialMessages={chatFromDb.messages as UIMessage[]}
             />
         </Suspense>
     )

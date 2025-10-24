@@ -1,28 +1,20 @@
 import { Button } from '@/components/ui/button'
 import { Chat } from '@/lib/db/schema'
-import { Message } from 'ai'
 import { DotIcon } from 'lucide-react'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 
-export default function ChatHistory({ history }: { history: Chat[] }) {
+export default function ChatHistory({ chat }: { chat?: Chat[] }) {
     const params = useParams()
-
-    if (history.length === 0) return null
+    console.log(chat)
+    if (!chat || chat.length === 0) return null
 
     return (
         <div className="contents">
-            {history.map((chat, i) => {
-                const assistantMessage = chat.messages
-                    .filter((message) => message.role === 'user')
-                    .map((message: Message) =>
-                        typeof message.content === 'string'
-                            ? message.content
-                            : ((message.content as any).find(
-                                  (content: any) => content.type === 'text'
-                              )?.text as string)
-                    )
-                    .filter((content) => content !== '')[0]
+            {chat.map((chat, i) => {
+                const message = chat.messages
+                    .filter((message) => message.role === 'user')?.[0]
+                    .parts.find((p) => p.type === 'text')?.text
                 return (
                     <Button
                         asChild
@@ -40,7 +32,7 @@ export default function ChatHistory({ history }: { history: Chat[] }) {
                                 data-hidden={params.id !== chat.id}
                                 className="text-accent-foreground w-32 data-[hidden=true]:w-0 transition-[width]"
                             />
-                            {assistantMessage}
+                            {message}
                         </Link>
                     </Button>
                 )

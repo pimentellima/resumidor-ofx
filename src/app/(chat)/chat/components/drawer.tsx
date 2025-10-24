@@ -49,7 +49,9 @@ export default function Drawer() {
                         <FileIcon />
                         {open &&
                             `${
-                                imports.length > 0 ? `(${imports.length}) ` : ''
+                                imports && imports.length > 0
+                                    ? `(${imports.length}) `
+                                    : ''
                             }Import statements`}
                     </Button>
                 </ImportStatementsDialog>
@@ -74,7 +76,7 @@ export default function Drawer() {
                 ) : (
                     <div className="contents w-full mt-10">
                         <Separator className="opacity-70" />
-                        <ChatHistory history={history} />
+                        <ChatHistory chat={history} />
                     </div>
                 )}
                 <div className="flex-1 flex items-end w-full">

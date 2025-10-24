@@ -4,7 +4,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card'
-import { getServerSession } from 'next-auth'
+import { auth } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 
 export default async function VerifyPage({
@@ -12,7 +12,7 @@ export default async function VerifyPage({
 }: {
     searchParams: { [key: string]: string }
 }) {
-    const session = await getServerSession()
+    const session = await auth()
 
     if (session?.user) {
         redirect('/chat')

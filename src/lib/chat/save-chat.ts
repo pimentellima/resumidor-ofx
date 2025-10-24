@@ -1,37 +1,32 @@
-import { eq } from 'drizzle-orm'
 import { db } from '../db'
 import { chats } from '../db/schema'
 
 export async function saveChat({
-    id,
+    chatId,
     messages,
     userId,
 }: {
-    id: string
+    chatId: string
     messages: any
     userId: string
 }) {
     try {
-        const chat = await db.query.chats.findFirst({
-            where: eq(chats.id, id),
-        })
-
-        if (chat) {
-            return await db
-                .update(chats)
-                .set({
+        return await db
+            .insert(chats)
+            .values({
+                id: chatId,
+                createdAt: new Date(),
+                messages: JSON.stringify(messages),
+                userId: userId,
+            })
+            .onConflictDoUpdate({
+                target: [chats.id],
+                set: {
                     messages: JSON.stringify(messages),
                     updatedAt: new Date(),
-                })
-                .where(eq(chats.id, id))
-        }
-
-        return await db.insert(chats).values({
-            id,
-            createdAt: new Date(),
-            messages: JSON.stringify(messages),
-            userId,
-        })
+                    userId: userId,
+                },
+            })
     } catch (error) {
         console.error('Failed to save chat in database')
         throw error

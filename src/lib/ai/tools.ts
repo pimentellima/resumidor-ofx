@@ -57,7 +57,7 @@ export type PieChartSchema = z.infer<typeof pieChartSchema>
 
 const getInformationTool = tool({
     description: `Get information from your knowledge base to answer questions.`,
-    parameters: z.object({
+    inputSchema: z.object({
         question: z.string().describe('the users question'),
     }),
     execute: async ({ question }) => findRelevantContent(question),
@@ -66,7 +66,7 @@ const getInformationTool = tool({
 const addResourceTool = tool({
     description: `add a resource to your knowledge base.
       If the user provides some piece of knowledge about him, use this tool without asking for confirmation.`,
-    parameters: z.object({
+    inputSchema: z.object({
         content: z
             .string()
             .describe('the content or resource to add to the knowledge base'),
@@ -77,7 +77,7 @@ const addResourceTool = tool({
 const generateQueryTool = tool({
     description:
         "Generate a postgreSQL compatible query to get information from the database based on the user's question",
-    parameters: z.object({
+    inputSchema: z.object({
         query: z.string(),
     }),
     execute: async ({ query }) => {
@@ -87,7 +87,7 @@ const generateQueryTool = tool({
 
 const queryDatabaseTool = tool({
     description: 'Query the database with a given query',
-    parameters: z.object({
+    inputSchema: z.object({
         query: z.string(),
     }),
     execute: async ({ query }) => {
@@ -104,14 +104,14 @@ const queryDatabaseTool = tool({
 const createBarChartMultipleTool = tool({
     description:
         'Generate data for a bar chart with one, two of three variables based on results from the database',
-    parameters: barChartMultipleSchema,
+    inputSchema: barChartMultipleSchema,
     execute: async (result) => result,
 })
 
 const createPieChartTool = tool({
     description:
         'Generate data for a pie chart based on results from the database',
-    parameters: pieChartSchema,
+    inputSchema: pieChartSchema,
     execute: async (result) => result,
 })
 

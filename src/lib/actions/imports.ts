@@ -24,41 +24,31 @@ export async function getImports() {
     return await getUserImports(session.user.id)
 }
 
-export async function importStatementsFromCsv(error = '', formData: FormData) {
-    const files = formData.getAll('files') as File[]
+export async function importStatementsFromCsv(csvFiles: string[]) {
     const session = await auth()
     if (!session?.user.id) {
-        return 'Unauthorized'
+        throw new Error('Unauthorized')
     }
-    if (!files || files.length === 0) {
-        return 'No files provided'
+    if (csvFiles.length === 0) {
+        throw new Error('No files provided')
     }
-    try {
-        await Promise.all(
-            Array.from(files).map(async (file) => {
-                const buffer = await file.arrayBuffer()
-                console.log(1)
-                const csv = new TextDecoder('utf-8').decode(buffer)
-                console.log(csv)
-                await db.transaction(async (tx) => {
-                    const rows = generateStatementsFromCsv(csv)
-                    const [newBankImport] = await tx
-                        .insert(bankImports)
-                        .values({ userId: session.user.id })
-                        .returning()
+    await Promise.all(
+        Array.from(csvFiles).map(async (csv) => {
+            await db.transaction(async (tx) => {
+                const rows = generateStatementsFromCsv(csv)
+                const [newBankImport] = await tx
+                    .insert(bankImports)
+                    .values({ userId: session.user.id })
+                    .returning()
 
-                    await tx.insert(statements).values(
-                        rows.map((row) => ({
-                            ...row,
-                            bankImportId: newBankImport.id,
-                            userId: session.user.id,
-                        }))
-                    )
-                })
+                await tx.insert(statements).values(
+                    rows.map((row) => ({
+                        ...row,
+                        bankImportId: newBankImport.id,
+                        userId: session.user.id,
+                    }))
+                )
             })
-        )
-        return ''
-    } catch (e) {
-        return 'Some file failed to import'
-    }
+        })
+    )
 }

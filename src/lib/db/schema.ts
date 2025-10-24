@@ -1,4 +1,4 @@
-import { generateId, Message } from 'ai'
+import { generateId, UIMessage } from 'ai'
 import { InferSelectModel, sql } from 'drizzle-orm'
 import {
     boolean,
@@ -11,7 +11,6 @@ import {
     primaryKey,
     text,
     timestamp,
-    uuid,
     varchar,
     vector,
 } from 'drizzle-orm/pg-core'
@@ -143,6 +142,7 @@ export const authenticators = pgTable(
     (authenticator) => ({
         compositePK: primaryKey({
             columns: [authenticator.userId, authenticator.credentialID],
+            name: 'authenticator_userid_credentialid_pk',
         }),
     })
 )
@@ -159,7 +159,7 @@ export const refreshTokens = pgTable('refresh_tokens', {
 })
 
 export const chats = pgTable('chats', {
-    id: uuid('id').primaryKey().notNull().defaultRandom(),
+    id: text('id').primaryKey().notNull(),
     createdAt: timestamp('createdAt').notNull(),
     updatedAt: timestamp('updatedAt').notNull().defaultNow(),
     messages: json('messages').notNull(),
@@ -169,5 +169,5 @@ export const chats = pgTable('chats', {
 })
 
 export type Chat = Omit<InferSelectModel<typeof chats>, 'messages'> & {
-    messages: Array<Message>
+    messages: Array<UIMessage>
 }

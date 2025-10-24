@@ -25,7 +25,6 @@ export default async function SignIn() {
                         <div className="w-full h-0.5 bg-muted" />
                     </div>
                     <SignInWithEmail />
-                    <div className="w-full h-0.5 bg-muted" />
                 </div>
             </div>
         </div>

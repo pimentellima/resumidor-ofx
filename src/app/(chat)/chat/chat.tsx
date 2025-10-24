@@ -4,6 +4,7 @@ import { BarChartSchema, PieChartSchema } from '@/lib/ai/tools'
 import useImports from '@/lib/hooks/use-imports'
 import { UIMessage, useChat } from '@ai-sdk/react'
 import { useQueryClient } from '@tanstack/react-query'
+import { DefaultChatTransport } from 'ai'
 import { useRouter } from 'next/navigation'
 import { useEffect, useRef, useState } from 'react'
 import BarChartMultiple from '../../../components/bar-chart-multiple'
@@ -15,27 +16,37 @@ export default function Chat({
     id,
     initialMessages,
 }: {
-    id: string
-    initialMessages?: Array<UIMessage>
+    id?: string
+    initialMessages?: UIMessage[]
 }) {
     const router = useRouter()
     const queryClient = useQueryClient()
     const { data: imports } = useImports()
     const [input, setInput] = useState('')
     const userHasImports = imports && imports.length > 0
-    const { messages, sendMessage } = useChat({
-        id,
+    const {
+        messages,
+        sendMessage,
+        id: chatId,
+    } = useChat({
+        ...(id ? { id } : {}),
+        transport: new DefaultChatTransport({
+            api: '/api/chat',
+            prepareSendMessagesRequest({ messages, id }) {
+                return { body: { message: messages[messages.length - 1], id } }
+            },
+        }),
         messages: initialMessages,
         onFinish: async () => {
-            if (messages.length === 0) {
+            if (!initialMessages) {
+                router.replace(`/chat/${chatId}`)
                 await queryClient.refetchQueries({
                     queryKey: ['history'],
                 })
-                router.push('/chat/' + id)
             }
         },
     })
-
+    console.log(chatId)
     const messageEndRef = useRef<HTMLDivElement>(null)
     const scrollToBottom = () => {
         const scrollHeight = messageEndRef.current?.scrollHeight
@@ -44,10 +55,12 @@ export default function Chat({
         }
     }
 
-    const handleSubmit = async () => {
-        if (input.trim() === '') return
-        await sendMessage({ text: input })
-        setInput('')
+    const submitMessage = () => {
+        if (input.trim()) {
+            sendMessage({ text: input })
+            setInput('')
+            scrollToBottom()
+        }
     }
 
     useEffect(() => {
@@ -96,9 +109,8 @@ export default function Chat({
             <div className="w-[750px]">
                 <InputBubble
                     disabled={!userHasImports}
-                    scrollToBottom={scrollToBottom}
-                    handleSubmit={handleSubmit}
-                    handleInputChange={(e) => setInput(e.target.value)}
+                    handleSubmit={submitMessage}
+                    handleInputChange={(input) => setInput(input)}
                     input={input}
                 />
             </div>

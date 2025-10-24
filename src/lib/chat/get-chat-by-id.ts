@@ -2,7 +2,7 @@ import { db } from '@/lib/db'
 import { eq } from 'drizzle-orm'
 import { chats } from '../db/schema'
 
-export async function getChatById({ id }: { id: string }) {
+export async function getChatById(id: string) {
     return await db.query.chats.findFirst({
         where: eq(chats.id, id),
     })

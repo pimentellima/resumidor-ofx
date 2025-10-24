@@ -10,20 +10,21 @@ import {
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { toast } from '@/components/ui/use-toast'
-import { deleteImport, importStatementsFromCsv } from '@/lib/actions/imports'
+import { deleteImport } from '@/lib/actions/imports'
 import { bankImports } from '@/lib/db/schema'
+import useImportMutation from '@/lib/hooks/use-import'
 import { DialogDescription } from '@radix-ui/react-dialog'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { format } from 'date-fns'
 import { InferSelectModel } from 'drizzle-orm'
 import { FileIcon, Loader2Icon, LoaderIcon, TrashIcon } from 'lucide-react'
-import { ChangeEvent, ReactNode, useActionState, useState } from 'react'
+import { ChangeEvent, ReactNode, useState } from 'react'
 
 export function ImportStatementsDialog({
     imports,
     children,
 }: {
-    imports: InferSelectModel<typeof bankImports>[]
+    imports?: InferSelectModel<typeof bankImports>[]
     children: ReactNode
 }) {
     const [open, setOpen] = useState(false)
@@ -35,10 +36,12 @@ export function ImportStatementsDialog({
         }
         setFiles(e.target.files)
     }
-    const [error, formAction, pending] = useActionState(
-        importStatementsFromCsv,
-        ''
-    )
+    const { mutate, isPending } = useImportMutation({
+        onSuccess: () => setFiles(null),
+    })
+
+    console.log(files)
+
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
@@ -58,25 +61,25 @@ export function ImportStatementsDialog({
                         />
                     ))}
                 </div>
-                {imports?.length > 0 && <Separator />}
+                {imports && imports.length > 0 && <Separator />}
                 <div className="flex flex-col">
-                    <form action={formAction} className="flex gap-1">
+                    <div className="flex gap-1">
                         <Input
                             id="files"
                             name="files"
                             type="file"
-                            disabled={pending}
+                            disabled={isPending}
                             accept=".csv"
                             multiple={true}
                             onChange={handleChangeFile}
                         />
                         {files && (
                             <Button
-                                disabled={pending}
-                                type="submit"
+                                disabled={isPending}
+                                onClick={() => mutate(files)}
                                 variant={'outline'}
                             >
-                                {pending ? (
+                                {isPending ? (
                                     <div className="flex items-center gap-1">
                                         <LoaderIcon className="w-4 h-4 animate-spin" />
                                         <span>Importando</span>
@@ -86,12 +89,7 @@ export function ImportStatementsDialog({
                                 )}
                             </Button>
                         )}
-                        {error && (
-                            <span className="text-sm text-destructive">
-                                {error}
-                            </span>
-                        )}
-                    </form>
+                    </div>
                 </div>
             </DialogContent>
         </Dialog>
